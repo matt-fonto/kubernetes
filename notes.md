@@ -23,6 +23,33 @@
 - Master node (Control plane): Manages the cluster, scheduling workloads, and maintaining the desired state
 - Worker node: Runs applications (containers) assigned by the master
 
+#### 1.1 Master Node
+
+It has different services running on it, such as:
+
+- API Server: The entrypoint to K8s cluster. Ican be interacted through UI, API, or CLI
+- Controller Manager: Keeps track of what is happening in the cluster
+- Scheduler: Ensures Pod placement. It decides on which Node new Pod should be scheduled
+- etcd: K8s backing store. It holds the current state of the cluster
+
+It's important to have at least 2 master nodes in production
+
+- If one master is down, the other can take its place
+
+#### 1.2 Virtual network
+
+- Allows the different nodes to connect to the cluster and the control plane.
+- It creastes one unified machine
+
+#### 1.3 Worker node
+
+Compared with the `Master Node`,:
+
+- It deals with higher workload
+- It's much bigger and has more resources
+
+![virtual network](image.png)
+
 ### 2. Key Kubernetes Components
 
 - Pod: Smallest deployable unit, containing one or more containers
@@ -31,6 +58,29 @@
 - Ingress: Routes external traffic into the cluster based on rules
 - ConfigMap & Secret: Stores configuration data and sensitive information separately from application code
 - PersistenVolument (PV) & PersistentVolumeClaim (PVC): Handles persistent storage for containers
+
+#### 2.1 Node and Pod
+
+- Node: Virtual or physical machine
+- Pod: smallest unit in Kubernetes
+
+  - It's an abstraction over a container
+  - It adds a layer of abstraction over the container in case you'd like to change Docker to any other container application
+  - Through this layer, you don't need to work directly with the container, you have the Pod interface
+  - Usually **1 application** per Pod
+  - Each Pod gets its **own IP address**
+  - Pods are ephemeral
+
+#### 2.2 Service and Ingress
+
+- Service:
+
+  - It has a permanent IP address
+  - Its lifecycle isn't connected with the Pod's, meaning if the Pod dies, the service and its IP address will stay
+
+- Ingress:
+  - An external request, before getting to the service, goes through the Ingress and the ingress directs it to the service
+    ![ingress](image-1.png)
 
 ### 3. Networking & Communication
 
