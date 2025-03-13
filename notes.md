@@ -82,6 +82,22 @@ Compared with the `Master Node`,:
   - An external request, before getting to the service, goes through the Ingress and the ingress directs it to the service
     ![ingress](image-1.png)
 
+#### 2.3 ConfigMap & Secret
+
+- ConfigMap: Contains configuration that are external to the application (e.g., urls of databases)
+  - Used for **non-confidential** data!
+- Secret: Similar to ConfigMap, but to store confidential information (e.g., passwords, admin users, certificates)
+
+#### 2.4 Volume
+
+- Used for data persistence
+- References some data storage unit, either remove or local
+- The cluster `connects` with the storage. Think of it as an external hard-drive plugged into our cluster
+
+#### 2.5 Deployment & StatefulSet
+
+![volume](image-2.png)
+
 ### 3. Networking & Communication
 
 - ClusterIP: Default service type, internal to the cluster
