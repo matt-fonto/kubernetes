@@ -59,11 +59,11 @@ Compared with the `Master Node`,:
 - ConfigMap & Secret: Stores configuration data and sensitive information separately from application code
 - PersistenVolument (PV) & PersistentVolumeClaim (PVC): Handles persistent storage for containers
 
-#### 2.1 Node and Pod
+#### 2.1 Node and Pod (Abstraction of container)
 
 - Node: Virtual or physical machine
 - Pod: smallest unit in Kubernetes
-
+  - Layer of abstraction over containers
   - It's an abstraction over a container
   - It adds a layer of abstraction over the container in case you'd like to change Docker to any other container application
   - Through this layer, you don't need to work directly with the container, you have the Pod interface
@@ -71,7 +71,7 @@ Compared with the `Master Node`,:
   - Each Pod gets its **own IP address**
   - Pods are ephemeral
 
-#### 2.2 Service and Ingress
+#### 2.2 Service (Allows communication) and Ingress (Route traffic into the cluster)
 
 - Service:
 
@@ -88,13 +88,25 @@ Compared with the `Master Node`,:
   - Used for **non-confidential** data!
 - Secret: Similar to ConfigMap, but to store confidential information (e.g., passwords, admin users, certificates)
 
-#### 2.4 Volume
+#### 2.4 Volume (data persistence)
 
 - Used for data persistence
 - References some data storage unit, either remove or local
 - The cluster `connects` with the storage. Think of it as an external hard-drive plugged into our cluster
 
 #### 2.5 Deployment & StatefulSet
+
+- Deployment: It's a `blueprint` for `my-app` Pods. For stateLESS apps
+
+  - In K8s, we don't work with Pods directly, but with Deployments
+  - It allows the scale up/down of pods based on config
+  - It's a layer of abstraction on pods, which by themselves are a layer of abstraction over containers
+
+- Statefulset: Similar to what deployment is for `Pods`, but for `stateful` applications (e.g., dbs). For stateFUL apps
+  - MySQL, MongoDB, etc, shoud be created with `Statefulset`, not deployments
+  - It allows different dbs to connect to a service and orchestrates the order of which is reading and which is writing
+  - Guarantees data security
+  - Setting up a `Statefulset` is rather cumbersome, so it's quite common to **host DBs outside K8s cluster**
 
 ![volume](image-2.png)
 
