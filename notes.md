@@ -158,25 +158,25 @@ minikube dashboard
 2. Create a `Deployment` file
 
 ```yml
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: apps/v1 # specifies Kubernetes API version
+kind: Deployment # declares a deployment resource
 metadata:
-  name: my-app
+  name: my-app # name of deployment
 spec:
-  replicas: 2
-  selector:
+  replicas: 2 # numbers of pod replicas (scaling)
+  selector: # defines how to find pods related to this deployment
     matchLabels:
       app: my-app
-  template:
+  template: # pod template (what each pod should look like)
     metadata:
       labels:
         app: my-app
     spec:
       containers:
         - name: my-app
-          image: nginx:latest
+          image: nginx:latest # container image to use
           ports:
-            - containerPort: 80
+            - containerPort: 80 # port the container listens on
 ```
 
 3. Apply deployment file
@@ -195,15 +195,15 @@ kubectl get pods
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-app-service
+  name: my-app-service # name of the service
 spec:
-  selector:
+  selector: # connects to the deployment using labels
     app: my-app
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-  type: NodePort
+    - protocol: TCP # specifies the communication protocol
+      port: 80 # external port (what users access)
+      targetPort: 80 # internal pod port (matches deployment)
+  type: NodePort # exposes service on a node-wide port
 ```
 
 5. Apply service
