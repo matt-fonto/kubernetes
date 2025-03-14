@@ -14,16 +14,16 @@
 - Scalability or high performance
 - Disaster recovery (backup and restore)
 
-## Main Concepts
+## 1. Main Concepts
 
-### 1. K8s Architecture
+### 1.1. K8s Architecture
 
 - Cluster: Set of machines (nodes) running K8s
 - Node: A single machine (physical/virtual) in the cluster, running workloads
 - Master node (Control plane): Manages the cluster, scheduling workloads, and maintaining the desired state
 - Worker node: Runs applications (containers) assigned by the master
 
-#### 1.1 Master Node
+#### 1.1.1 Master Node
 
 It has different services running on it, such as:
 
@@ -36,12 +36,12 @@ It's important to have at least 2 master nodes in production
 
 - If one master is down, the other can take its place
 
-#### 1.2 Virtual network
+#### 1.1.2 Virtual network
 
 - Allows the different nodes to connect to the cluster and the control plane.
 - It creastes one unified machine
 
-#### 1.3 Worker node
+#### 1.1.3 Worker node
 
 Compared with the `Master Node`,:
 
@@ -50,7 +50,7 @@ Compared with the `Master Node`,:
 
 ![virtual network](image.png)
 
-### 2. Key Kubernetes Components
+### 1.2. Key Kubernetes Components
 
 - Pod: Smallest deployable unit, containing one or more containers
 - Deployment: Manages pod creation and updates, ensuring the correct number of replicas
@@ -59,7 +59,7 @@ Compared with the `Master Node`,:
 - ConfigMap & Secret: Stores configuration data and sensitive information separately from application code
 - PersistenVolument (PV) & PersistentVolumeClaim (PVC): Handles persistent storage for containers
 
-#### 2.1 Node and Pod (Abstraction of container)
+#### 1.2.1 Node and Pod (Abstraction of container)
 
 - Node: Virtual or physical machine
 - Pod: smallest unit in Kubernetes
@@ -71,7 +71,7 @@ Compared with the `Master Node`,:
   - Each Pod gets its **own IP address**
   - Pods are ephemeral
 
-#### 2.2 Service (Allows communication) and Ingress (Route traffic into the cluster)
+#### 1.2.2 Service (Allows communication) and Ingress (Route traffic into the cluster)
 
 - Service:
 
@@ -82,19 +82,19 @@ Compared with the `Master Node`,:
   - An external request, before getting to the service, goes through the Ingress and the ingress directs it to the service
     ![ingress](image-1.png)
 
-#### 2.3 ConfigMap & Secret
+#### 1.2.3 ConfigMap & Secret
 
 - ConfigMap: Contains configuration that are external to the application (e.g., urls of databases)
   - Used for **non-confidential** data!
 - Secret: Similar to ConfigMap, but to store confidential information (e.g., passwords, admin users, certificates)
 
-#### 2.4 Volume (data persistence)
+#### 1.2.4 Volume (data persistence)
 
 - Used for data persistence
 - References some data storage unit, either remove or local
 - The cluster `connects` with the storage. Think of it as an external hard-drive plugged into our cluster
 
-#### 2.5 Deployment & StatefulSet
+#### 1.2.5 Deployment & StatefulSet
 
 - Deployment: It's a `blueprint` for `my-app` Pods. For stateLESS apps
 
@@ -110,16 +110,110 @@ Compared with the `Master Node`,:
 
 ![volume](image-2.png)
 
-### 3. Networking & Communication
+### 1.3. Networking & Communication
 
 - ClusterIP: Default service type, internal to the cluster
 - NodePort: Exposes a service on a static port of each node
 - LoadBalancer: Uses cloud providers' load balancer for external access
 - DNS: K8s automatically assigns a DNS name to services
 
-### 4. Scaling & Self-healing
+### 1.4. Scaling & Self-healing
 
 - Horizontal Pod Autoscaler (HPA): Adjusts the number of pods based on CPU/memory usage
 - Vertical Pod Autoscaler (VPA): Adjusts resource requests/limits dynamically
 - ReplicaSet: Ensures a specified number of pod replicas are running
 - Liveness & Readiness Probes: Monitors container health and restarts failing ones
+
+## 2. Kubernetes Configuration
+
+- API Server is the only entry point to interact with the cluster
+  - UI, API, CLI go through it
+  - Can be accessed through YAML or JSON file
+
+### 2.1 First Steps
+
+1. Prepare Kubernetes environment
+
+```bash
+# Install kubectl CLI
+brew install kubectl
+
+# Install Minikube
+brew install minikube
+
+# Start a kubernetes cluster
+minikube start --driver=docker
+
+# Verify installation
+minikiube status
+
+# Check Kubernetes cluster
+kubectl cluster-info
+kubectl get nodes
+
+# Enable Kubernetes Dashboard (optional)
+minikube dashboard
+```
+
+2. Create a `Deployment` file
+
+```yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: my-app
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+```
+
+3. Apply deployment file
+
+```bash
+kubectl apply -f deployment.yaml
+
+# check if deployment was created
+kubectl get deployments
+kubectl get pods
+```
+
+4. Expose application wtih `service.yml`
+
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  selector:
+    app: my-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
+```
+
+5. Apply service
+
+```bash
+kubectl apply -f service.yml
+
+# get service url
+minikube service my-app-service --url
+
+# verify service
+kubectl get services
+```
