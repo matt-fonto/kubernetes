@@ -254,3 +254,110 @@ kubectl get services
   - Store config file together with the code
 
 ## 3. Demo Project Steps
+
+### 3.1. Setup minikube
+
+```bash
+minikube start --driver=docker
+kubectl get nodes
+```
+
+### 3.2. Create DB (PostgreSQL for this example)
+
+`postgres.yml`
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          env:
+            - name: POSTGRES_USER
+              value: myuser
+            - name: POSTGRES_PASSWORD
+              value: mypassword
+            - name: POSTGRES_DB
+              value: mydb
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-storage
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+```
+
+- Apply PostgresSQL Config
+
+```bash
+kubectl apply -f postgres.yml
+
+# check if Postgres is running
+kubectl get pods
+kubectl get services
+```
+
+### 3.3. Setup backend (Node.js + Express)
+
+- Let's create a simple backend for that
+
+```js
+const express = require("express");
+const { Pool } = require("pg");
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+const pool = new Pool({
+  user: "myuser",
+  host: "postgres-service",
+  database: "mydb",
+  password: "mypassword",
+  port: 5432,
+});
+
+app.get("/", async (req, res) => {
+  const result = await pool.query("SELECT NOW()");
+  res.json({ message: "Hello from express", time: result.rows[0] });
+});
+
+app.listen(port, () => console.log(`Server is running on port ${port}`));
+```
+
+- Create `Dockerfile` for backend
