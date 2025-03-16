@@ -134,9 +134,24 @@ Compared with the `Master Node`,:
 
 1. Prepare Kubernetes environment
 
+#### 2.1.1 Minikube
+
+- Allows us to test Kubernetes locally
+- Both the master and worker processes run on one node
+- Docker is pre-installed
+- Used to start up/deleting the cluster
+
+#### 2.1.2 kubectl
+
+- Command line tool for K8s cluster
+- Allows us to interact with K8s cluster> environment
+- Kubectl is the most powerful of all clients (UI, API, CLI -- kubectl --)
+- Used to configure the minikube cluster
+
 ```bash
 # Install kubectl CLI
-brew install kubectl
+brew install kubectl # we wouldn't even need a separate installation. kubectl comes with minikube.
+# So, we can skip this step
 
 # Install Minikube
 brew install minikube
@@ -217,3 +232,25 @@ minikube service my-app-service --url
 # verify service
 kubectl get services
 ```
+
+### 2.2 Deployment and Service Files
+
+- Each configuration files has 3 parts:
+
+  1. metadata
+  2. specification
+
+     - specification will be specific to the kind of config you're writing (`deployment` or `service`)
+
+  3. status: automatically generated and added by Kubernetes
+     - Kubernetes compares the actual vs. the desired state of the application
+     - Part of the `self-healing` feature of Kubernetes
+     - `etcd` holds the current status of any K8s component
+
+### 2.3 Format of Kubenertes Config
+
+- YAML: "human friendly" data serialization standard for all programming languages
+  - It has strict indentation rules
+  - Store config file together with the code
+
+## 3. Demo Project Steps
