@@ -264,7 +264,7 @@ kubectl get nodes
 
 ### 3.2. Create DB (PostgreSQL for this example)
 
-`postgres.yml`
+1. Create `postgres.yml`
 
 ```yaml
 apiVersion: v1
@@ -323,7 +323,7 @@ spec:
             claimName: postgres-pvc
 ```
 
-- Apply PostgresSQL Config
+2. Apply PostgresSQL Config
 
 ```bash
 kubectl apply -f postgres.yml
@@ -335,7 +335,9 @@ kubectl get services
 
 ### 3.3. Setup backend (Node.js + Express)
 
-- Let's create a simple backend for that
+1. Create `backend/server.js`
+
+- Also init the package.json with `npm init -y`
 
 ```js
 const express = require("express");
@@ -360,4 +362,76 @@ app.get("/", async (req, res) => {
 app.listen(port, () => console.log(`Server is running on port ${port}`));
 ```
 
-- Create `Dockerfile` for backend
+2. Create `Dockerfile` for backend (inside `backend/`)
+
+```dockerfile
+# backend/Dockerfile
+FROM node:latest
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["node", "server.js"]
+```
+
+3. Create `backend.yml` (at the root)
+
+```yml
+# /backend.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: backend-image
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: DATABASE_URL
+              value: "postgres://myuser:mypassword@postgres-service:5432/mydb"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: NodePort
+```
+
+4. Build and push docker image
+
+   - Inside `backend`, run:
+
+   ```bash
+   docker build -t backend-image
+   minikube image load backend-image
+   ```
+
+5. Deploy backend
+
+```
+kubectl apply -f backend.yml
+kubectl get pods
+kubectl get services
+```
