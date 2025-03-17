@@ -435,3 +435,92 @@ kubectl apply -f backend.yml
 kubectl get pods
 kubectl get services
 ```
+
+### 3.4. Setup frontend
+
+1. Install vite
+
+```bash
+mkdir frontend && cd frontend
+npm create vite@latest .
+npm install
+```
+
+2. Create `frontend/Dockerfile`
+
+```Dockerfile
+FROM node:latest
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+RUN npm install -g serve
+
+# server -s: serve the static files in the dist folder
+# -l: listen on port 5173
+CMD ["serve", "-s", "dist", "-l", "5173"]
+```
+
+3. Create `/frontend.yml` at the root
+
+```yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: frontend-image
+          ports:
+            - containerPort: 5173
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 5173
+      targetPort: 5173
+  type: NodePort
+```
+
+4. Build & deploy frontend
+
+- inside `/frontend`, run:
+
+```bash
+docker build -t frontend-image .
+minikube image load frontend-image
+
+cd .. # go back to root
+kubectl apply -f frontend.yml
+kubectl get pods
+kubectl get services
+```
+
+5. Access the application
+
+```bash
+minikube service frontend-service --url
+```
