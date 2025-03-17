@@ -15,6 +15,7 @@ spec:
       containers:
         - name: frontend
           image: frontend-image
+          imagePullPolicy: Never
           ports:
             - containerPort: 5173
 ---

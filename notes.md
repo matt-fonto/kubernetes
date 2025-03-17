@@ -488,6 +488,7 @@ spec:
       containers:
         - name: frontend
           image: frontend-image
+          imagePullPolicy: Never # needed to add this
           ports:
             - containerPort: 5173
 ---
@@ -510,13 +511,29 @@ spec:
 - inside `/frontend`, run:
 
 ```bash
+# /frontend
 docker build -t frontend-image .
 minikube image load frontend-image
 
+# / root
 cd .. # go back to root
 kubectl apply -f frontend.yml
 kubectl get pods
 kubectl get services
+
+# debug pod
+kubectl describe pod <pod-name> # check for errors
+kubectl logs <pod-name> # log errors
+
+# I needed to
+eval $(minikube docker-env) # 1. docker commands use Minikube's internal daemon
+docker build -t frontend-image . # 2. rebuild the image
+
+cd ..
+minikube image load front-end # 3. reload the image
+kubectl delete deployment frontend # 4. delete previous deployment
+kubectl apply -f frontend.yml # 5. apply the config once again
+# then it worked
 ```
 
 5. Access the application
