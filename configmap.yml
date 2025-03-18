@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  FRONTEND_URL: "http://frontend-service:5173"
+  BACKEND_PORT: "3000"

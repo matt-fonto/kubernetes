@@ -541,3 +541,53 @@ kubectl apply -f frontend.yml # 5. apply the config once again
 ```bash
 minikube service frontend-service --url
 ```
+
+### 3.5 Setup ConfigMap and Secret
+
+- ConfigMap: stores non-sensitive configuration (API URLs, environment settings)
+- Secret: stores sensitive data (passwords, API Keys)
+
+1. Create `configmap.yml`
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  FRONTEND_URL: "http://frontend-service:5173"
+  BACKEND_PORT: "3000"
+```
+
+Apply `configmap`
+
+```bash
+kubectl apply -f configmap.yml
+```
+
+2. Create `secret.yml`
+
+```yml
+apiVersion: v1
+kind: Secret
+metatadata:
+  name: app-secret
+type: Opaque
+data:
+  DB_USER: bXl1c2Vy # "myuser" (base64 encoded)
+  DB_PASSWORD: bXlwYXNzd29yZA== # "mypassword" (base64 encoded)
+```
+
+- Kubernetes requires secret values to be encoded in base64
+- To encode manually
+
+```bash
+echo -n "myuser" | base64
+echo -n "mypassword" | base64
+```
+
+Apply it
+
+```
+kubectl apply -f secret.yml
+```
