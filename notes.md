@@ -253,6 +253,33 @@ kubectl get services
   - It has strict indentation rules
   - Store config file together with the code
 
+### 2.4 Structure `Deployment` Config file
+
+```
+kind: Deployment
+template: configuration for Pod. It has own "metadata" and "spec" section
+  metadata: specifies the labels
+    labels: we can give any K8s component a label
+      labels are key/value pairs that are attached to k8s resources
+      identifier that should be meaningful and relevant to users
+  spec: specifies the image and port. It can have:
+    image
+    port
+    env
+    volumeMount
+```
+
+### 2.5 Structure `Service` Config file
+
+```
+kind: Service
+name: arbitrary name
+selector: select pods to forward the requests to
+ports
+  port: service port
+  targetPort: containerPort of Deployment
+```
+
 ## 3. Demo Project Steps
 
 ### 3.1. Setup minikube
@@ -261,6 +288,8 @@ kubectl get services
 minikube start --driver=docker
 kubectl get nodes
 ```
+
+- It's very common for `deployment` and `service` to be in 1 file since they belong together
 
 ### 3.2. Create DB (PostgreSQL for this example)
 
@@ -287,7 +316,7 @@ spec:
     - port: 5432
   selector:
     app: postgres
----
+--- # separates the yaml section
 apiVersion: apps/v1
 kind: Deployment
 metadata:
