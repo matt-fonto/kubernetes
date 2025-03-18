@@ -570,7 +570,7 @@ kubectl apply -f configmap.yml
 ```yml
 apiVersion: v1
 kind: Secret
-metatadata:
+metadata:
   name: app-secret
 type: Opaque
 data:
@@ -590,4 +590,45 @@ Apply it
 
 ```
 kubectl apply -f secret.yml
+```
+
+3. Inject ConfigMap and Secret into backend
+
+```yml
+#...
+containers:
+  - name: backend
+    image: backend-image
+    imagePullPolicy: Never
+    ports:
+      - containerPort: 3000
+    env:
+      - name: FRONTEND_URL
+        valueFrom:
+          configMapKeyRef: # load from config map
+            name: app-config
+            key: FRONTEND_URL
+      - name: BACKEND_PORT
+        valueFrom:
+          configMapKeyRef: # load from config map
+            name: app-config
+            key: BACKEND_PORT
+      - name: DB_PASSWORD
+        valueFrom:
+          secretKeyRef: # load from secret
+            name: app-secret
+            key: DB_PASSWORD
+```
+
+Apply changes to backend
+
+```
+kubectl apply -f backend.yml
+```
+
+4. Check values
+
+```bash
+kubectl get configmap app-config -o yaml
+kubectl get secret app-secret -o yaml
 ```

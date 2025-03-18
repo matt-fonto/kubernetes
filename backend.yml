@@ -19,10 +19,21 @@ spec:
           ports:
             - containerPort: 3000
           env:
-            - name: PORT
-              value: "3000"
-            - name: DATABASE_URL
-              value: "postgres://myuser:mypassword@postgres-service:5432/mydb"
+            - name: FRONTEND_URL # load from config map
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: FRONTEND_URL
+            - name: BACKEND_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: BACKEND_PORT
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DB_PASSWORD
 ---
 apiVersion: v1
 kind: Service
