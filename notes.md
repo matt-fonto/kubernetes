@@ -196,6 +196,10 @@ spec:
 
 3. Apply deployment file
 
+> apply -f: apply file
+> apply manages applications through files defining kubernetes resources
+> `kubectl apply -f <file-name.yml>`
+
 ```bash
 kubectl apply -f deployment.yaml
 
@@ -231,6 +235,15 @@ minikube service my-app-service --url
 
 # verify service
 kubectl get services
+```
+
+##### 2.1.2.1 kubectl commands
+
+```bash
+kubectl get all # gets all components created in the cluster (pods, services, deployment)
+kubectl get configmap
+kubectl get secret
+kubectl get pods
 ```
 
 ### 2.2 Deployment and Service Files
