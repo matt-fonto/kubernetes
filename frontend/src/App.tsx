@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 
+const MINIKUBE_URL = "http://127.0.0.1:58317";
+
+// TODO: Add hot-reload to k8s
 function App() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetch("http://backend-service:3000")
-      .then((res) => res.json())
+    fetch(MINIKUBE_URL)
+      .then((res) => {
+        console.log("res", res);
+        return res.json();
+      })
       .then((data) => setMessage(data.message));
   }, []);
 

@@ -18,6 +18,15 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 5173
+          # hot-reload
+          volumeMounts:
+            - mountPath: /app # mounts the local frontend directory inside the container
+              name: frontend-code
+      volumes:
+        - name: frontend-code
+          hostPath:
+            path: /mnt/frontend
+            type: Directory
 ---
 apiVersion: v1
 kind: Service

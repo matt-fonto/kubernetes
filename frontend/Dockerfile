@@ -3,15 +3,11 @@ FROM node:latest
 WORKDIR /app
 
 COPY package*.json ./
-
 RUN npm install
 
 COPY . .
 
-RUN npm run build
+EXPOSE 5173
 
-RUN npm install -g serve
- 
-# server -s: serve the static files in the dist folder
-# -l: listen on port 5173 
-CMD ["serve", "-s", "dist", "-l", "5173"]
+# allow hot reload
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
